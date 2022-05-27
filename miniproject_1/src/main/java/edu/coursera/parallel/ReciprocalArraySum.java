@@ -1,5 +1,6 @@
 package edu.coursera.parallel;
 
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 /**
@@ -20,13 +21,15 @@ public final class ReciprocalArraySum {
      * @return The sum of the reciprocals of the array input
      */
     protected static double seqArraySum(final double[] input) {
+        long startTime = System.nanoTime();
+
         double sum = 0;
 
         // Compute sum of reciprocals of array elements
-        for (int i = 0; i < input.length; i++) {
-            sum += 1 / input[i];
+        for (double v : input) {
+            sum += 1 / v;
         }
-
+        printResults("seqArraySum", System.nanoTime() - startTime, sum);
         return sum;
     }
 
@@ -79,6 +82,10 @@ public final class ReciprocalArraySum {
         }
     }
 
+    private static void printResults(String name, long timeInNano, double sum) {
+        System.out.printf(" %s completed in %8.3f milliseconds, with sum = %8.5f \n", name, timeInNano / 1e6, sum);
+    }
+
     /**
      * This class stub can be filled in to implement the body of each task
      * created to perform reciprocal array sum in parallel.
@@ -100,6 +107,8 @@ public final class ReciprocalArraySum {
          * Intermediate value produced by this task.
          */
         private double value;
+
+        static final int SEQUENTIAL_THRESHOLD = 50000;
 
         /**
          * Constructor.
@@ -125,9 +134,43 @@ public final class ReciprocalArraySum {
             return value;
         }
 
+//        private static double[] getSliceOfArray(double[] input, int startIdx, int endIdx) {
+//            double[] subArray = new double[endIdx - startIdx];
+//            for (int i = startIdx; i < endIdx; i++) {
+//                subArray[i]
+//            }
+//        }
+
         @Override
         protected void compute() {
-            // TODO
+            System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "4");
+            if (startIndexInclusive > endIndexExclusive) {
+                value = 0;
+            } else if (endIndexExclusive - startIndexInclusive <= SEQUENTIAL_THRESHOLD) {
+                for (int i = 0; i < endIndexExclusive; i++) {
+                    value += 1 / input[i];
+                }
+            } else {
+                int midIndex = input.length / 2;
+                // get left sub array
+                double[] leftPart = new double[midIndex];
+                for (int i = 0; i < midIndex; i++) {
+                    leftPart[i] = input[i];
+                }
+
+                // get right sub array
+                double[] rightPart = new double[input.length - midIndex];
+                for (int i = 0; i < rightPart.length; i++) {
+                    rightPart[i] = input[midIndex + i];
+                }
+
+                ReciprocalArraySumTask left = new ReciprocalArraySumTask(0, midIndex, leftPart);
+                ReciprocalArraySumTask right = new ReciprocalArraySumTask(midIndex, rightPart.length, rightPart);
+                left.fork(); // async
+                right.compute();
+                left.join();
+                value = left.getValue() + right.getValue();
+            }
         }
     }
 
@@ -142,15 +185,14 @@ public final class ReciprocalArraySum {
      */
     protected static double parArraySum(final double[] input) {
         assert input.length % 2 == 0;
+        long startTime = System.nanoTime();
 
-        double sum = 0;
+        ReciprocalArraySumTask t = new ReciprocalArraySumTask(0, input.length, input);
+        ForkJoinPool.commonPool().invoke(t);
 
-        // Compute sum of reciprocals of array elements
-        for (int i = 0; i < input.length; i++) {
-            sum += 1 / input[i];
-        }
-
-        return sum;
+        double sum = t.getValue();
+        printResults("parArraySum", System.nanoTime() - startTime, sum);
+        return t.getValue();
     }
 
     /**
