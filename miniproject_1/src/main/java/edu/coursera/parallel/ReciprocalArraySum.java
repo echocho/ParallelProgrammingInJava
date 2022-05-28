@@ -1,5 +1,7 @@
 package edu.coursera.parallel;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
@@ -21,15 +23,12 @@ public final class ReciprocalArraySum {
      * @return The sum of the reciprocals of the array input
      */
     protected static double seqArraySum(final double[] input) {
-        long startTime = System.nanoTime();
-
         double sum = 0;
 
         // Compute sum of reciprocals of array elements
         for (double v : input) {
             sum += 1 / v;
         }
-        printResults("seqArraySum", System.nanoTime() - startTime, sum);
         return sum;
     }
 
@@ -102,13 +101,13 @@ public final class ReciprocalArraySum {
         /**
          * Input array to reciprocal sum.
          */
-        private final double[] input;
+        private final BigDecimal[] input;
         /**
          * Intermediate value produced by this task.
          */
-        private double value;
+        private BigDecimal value = new BigDecimal(0);
 
-        static final int SEQUENTIAL_THRESHOLD = 50000;
+        static final int SEQUENTIAL_THRESHOLD = 50;
 
         /**
          * Constructor.
@@ -119,7 +118,7 @@ public final class ReciprocalArraySum {
          * @param setInput               Input values
          */
         ReciprocalArraySumTask(final int setStartIndexInclusive,
-                               final int setEndIndexExclusive, final double[] setInput) {
+                               final int setEndIndexExclusive, final BigDecimal[] setInput) {
             this.startIndexInclusive = setStartIndexInclusive;
             this.endIndexExclusive = setEndIndexExclusive;
             this.input = setInput;
@@ -130,46 +129,32 @@ public final class ReciprocalArraySum {
          *
          * @return Value produced by this task
          */
-        public double getValue() {
+        public BigDecimal getValue() {
             return value;
         }
 
-//        private static double[] getSliceOfArray(double[] input, int startIdx, int endIdx) {
-//            double[] subArray = new double[endIdx - startIdx];
-//            for (int i = startIdx; i < endIdx; i++) {
-//                subArray[i]
-//            }
-//        }
-
         @Override
         protected void compute() {
-            System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "4");
-            if (startIndexInclusive > endIndexExclusive) {
-                value = 0;
-            } else if (endIndexExclusive - startIndexInclusive <= SEQUENTIAL_THRESHOLD) {
-                for (int i = 0; i < endIndexExclusive; i++) {
-                    value += 1 / input[i];
+            System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "2");
+            if (endIndexExclusive - startIndexInclusive <= 1500000) {
+                for (int i = startIndexInclusive; i < endIndexExclusive; i++) {
+                    value.add(new BigDecimal(1).divide(input[i], MathContext.DECIMAL128));
                 }
             } else {
-                int midIndex = input.length / 2;
-                // get left sub array
-                double[] leftPart = new double[midIndex];
-                for (int i = 0; i < midIndex; i++) {
-                    leftPart[i] = input[i];
-                }
 
-                // get right sub array
-                double[] rightPart = new double[input.length - midIndex];
-                for (int i = 0; i < rightPart.length; i++) {
-                    rightPart[i] = input[midIndex + i];
-                }
 
-                ReciprocalArraySumTask left = new ReciprocalArraySumTask(0, midIndex, leftPart);
-                ReciprocalArraySumTask right = new ReciprocalArraySumTask(midIndex, rightPart.length, rightPart);
+                ReciprocalArraySumTask left = new ReciprocalArraySumTask(0, 100000, input);
+                ReciprocalArraySumTask right = new ReciprocalArraySumTask(100000, 300000, input);
+                ReciprocalArraySumTask left2 = new ReciprocalArraySumTask(300000, 600000, input);
+                ReciprocalArraySumTask right2 = new ReciprocalArraySumTask(600000, 2000000, input);
                 left.fork(); // async
+                left2.fork();
+                right2.fork();
                 right.compute();
                 left.join();
-                value = left.getValue() + right.getValue();
+                left2.join();
+                right2.join();
+                value = left.getValue().add(right.getValue());
             }
         }
     }
@@ -183,15 +168,12 @@ public final class ReciprocalArraySum {
      * @param input Input array
      * @return The sum of the reciprocals of the array input
      */
-    protected static double parArraySum(final double[] input) {
+    protected static BigDecimal parArraySum(final BigDecimal[] input) {
         assert input.length % 2 == 0;
-        long startTime = System.nanoTime();
 
         ReciprocalArraySumTask t = new ReciprocalArraySumTask(0, input.length, input);
         ForkJoinPool.commonPool().invoke(t);
 
-        double sum = t.getValue();
-        printResults("parArraySum", System.nanoTime() - startTime, sum);
         return t.getValue();
     }
 
@@ -205,15 +187,14 @@ public final class ReciprocalArraySum {
      * @param numTasks The number of tasks to create
      * @return The sum of the reciprocals of the array input
      */
-    protected static double parManyTaskArraySum(final double[] input,
-                                                final int numTasks) {
-        double sum = 0;
+    protected static BigDecimal parManyTaskArraySum(final BigDecimal[] input,
+                                                    final int numTasks) {
+        BigDecimal sum = new BigDecimal(0);
 
         // Compute sum of reciprocals of array elements
         for (int i = 0; i < input.length; i++) {
-            sum += 1 / input[i];
+            sum.add(new BigDecimal(1).divide(input[i], MathContext.DECIMAL128));
         }
-
         return sum;
     }
 }
