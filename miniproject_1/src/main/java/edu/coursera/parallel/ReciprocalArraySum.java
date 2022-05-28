@@ -1,6 +1,5 @@
 package edu.coursera.parallel;
 
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 /**
@@ -133,19 +132,8 @@ public final class ReciprocalArraySum {
 
         @Override
         protected void compute() {
-//            System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "4");
-            if (endIndexExclusive - startIndexInclusive <= SEQUENTIAL_THRESHOLD) {
-                for (int i = startIndexInclusive; i < endIndexExclusive; i++) {
-                    value += 1 / input[i];
-                }
-            } else {
-                int midIndex = (startIndexInclusive + endIndexExclusive) / 2;
-                ReciprocalArraySumTask left = new ReciprocalArraySumTask(startIndexInclusive, midIndex, input);
-                ReciprocalArraySumTask right = new ReciprocalArraySumTask(midIndex, endIndexExclusive, input);
-                left.fork(); // async
-                right.compute();
-                left.join();
-                value = left.getValue() + right.getValue();
+            for (int i = startIndexInclusive; i < endIndexExclusive; i++) {
+                value += 1 / input[i];
             }
         }
     }
@@ -162,23 +150,13 @@ public final class ReciprocalArraySum {
     protected static double parArraySum(final double[] input) {
         assert input.length % 2 == 0;
 
-        ReciprocalArraySumTask t = new ReciprocalArraySumTask(0, input.length, input);
-        ForkJoinPool.commonPool().invoke(t);
-
-        return t.getValue();
-
-        /**
-         List<ReciprocalArraySumTask> tasks = new ArrayList<>();
-
-
-         int midIndex = input.length / 2;
-         ReciprocalArraySumTask left = new ReciprocalArraySumTask(0, midIndex, input);
-         ReciprocalArraySumTask right = new ReciprocalArraySumTask(midIndex, input.length, input);
-         //left.fork();
-         //right.compute();
-         //left.join();
-         return left.getValue() + right.getValue();
-         **/
+        int midIndex = input.length / 2;
+        ReciprocalArraySumTask left = new ReciprocalArraySumTask(0, midIndex, input);
+        ReciprocalArraySumTask right = new ReciprocalArraySumTask(midIndex, input.length, input);
+        left.fork();
+        right.compute();
+        left.join();
+        return left.getValue() + right.getValue();
     }
 
     /**
