@@ -1,5 +1,7 @@
 package edu.coursera.parallel;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.RecursiveAction;
 
 /**
@@ -78,10 +80,6 @@ public final class ReciprocalArraySum {
         }
     }
 
-    private static void printResults(String name, long timeInNano, double sum) {
-        System.out.printf(" %s completed in %8.3f milliseconds, with sum = %8.5f \n", name, timeInNano / 1e6, sum);
-    }
-
     /**
      * This class stub can be filled in to implement the body of each task
      * created to perform reciprocal array sum in parallel.
@@ -103,8 +101,6 @@ public final class ReciprocalArraySum {
          * Intermediate value produced by this task.
          */
         private double value;
-
-        static final int SEQUENTIAL_THRESHOLD = 50000;
 
         /**
          * Constructor.
@@ -172,12 +168,31 @@ public final class ReciprocalArraySum {
     protected static double parManyTaskArraySum(final double[] input,
                                                 final int numTasks) {
         double sum = 0;
+        int taskNum = numTasks;
 
-        // Compute sum of reciprocals of array elements
-        for (int i = 0; i < input.length; i++) {
-            sum += 1 / input[i];
+        // set number of parallel tasks
+        if (numTasks > input.length) {
+            taskNum = input.length;
+        }
+
+        List<ReciprocalArraySumTask> subTasksList = createSubTasks(input, taskNum);
+        RecursiveAction.invokeAll(subTasksList);
+
+        for (ReciprocalArraySumTask task : subTasksList) {
+            task.join();
+            sum += task.getValue();
         }
 
         return sum;
+    }
+
+    private static List<ReciprocalArraySumTask> createSubTasks(final double[] input, final int taskNum) {
+        ArrayList<ReciprocalArraySumTask> tasks = new ArrayList<>();
+
+        for (int i = 0; i < taskNum; i++) {
+            tasks.add(new ReciprocalArraySumTask(getChunkStartInclusive(i, taskNum, input.length), getChunkEndExclusive(i, taskNum, input.length), input));
+        }
+
+        return tasks;
     }
 }
