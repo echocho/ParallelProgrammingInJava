@@ -45,20 +45,14 @@ public class ReciprocalArraySumTest extends TestCase {
      * @return Reciprocal sum of input
      */
     private double seqArraySum(final double[] input) {
-        System.out.println("~~~~~~~ seqArraySum in progress");
-        long startTime = System.nanoTime();
         double sum = 0;
 
         // Compute sum of reciprocals of array elements
         for (int i = 0; i < input.length; i++) {
             sum += 1 / input[i];
         }
-        printResults("seqArraySum", System.nanoTime() - startTime, sum);
-        return sum;
-    }
 
-    private static void printResults(String name, long timeInNano, double sum) {
-        System.out.printf(" %s completed in %8.3f milliseconds, with sum = %8.5f \n", name, timeInNano / 1e6, sum);
+        return sum;
     }
 
     /**
@@ -111,7 +105,6 @@ public class ReciprocalArraySumTest extends TestCase {
 
         final long seqTime = (seqEndTime - seqStartTime) / REPEATS;
         final long parTime = (parEndTime - parStartTime) / REPEATS;
-
         return (double) seqTime / (double) parTime;
     }
 
@@ -123,44 +116,45 @@ public class ReciprocalArraySumTest extends TestCase {
         final double speedup = parTestHelper(2_000_000, false, 2);
         final String errMsg = String.format("It was expected that the two-task parallel implementation would run at " +
                 "least %fx faster, but it only achieved %fx speedup", minimalExpectedSpeedup, speedup);
+        System.out.println("testParSimpleTwoMillion ============= minimalExpectedSpeedup: " + minimalExpectedSpeedup + "; speedup: " + speedup);
         assertTrue(errMsg, speedup >= minimalExpectedSpeedup);
     }
 
     /**
      * Test that the two-task parallel implementation properly computes the results for a hundred million-element array.
      */
-//    @Ignore
-//    public void testParSimpleTwoHundredMillion() {
-//        final double speedup = parTestHelper(200_000_000, false, 2);
-//        final double minimalExpectedSpeedup = 1.5;
-//        final String errMsg = String.format("It was expected that the two-task parallel implementation would run at " +
-//                "least %fx faster, but it only achieved %fx speedup", minimalExpectedSpeedup, speedup);
-//        assertTrue(errMsg, speedup >= minimalExpectedSpeedup);
-//    }
+    public void testParSimpleTwoHundredMillion() {
+        final double speedup = parTestHelper(200_000_000, false, 2);
+        final double minimalExpectedSpeedup = 1.5;
+        final String errMsg = String.format("It was expected that the two-task parallel implementation would run at " +
+                "least %fx faster, but it only achieved %fx speedup", minimalExpectedSpeedup, speedup);
+        System.out.println("testParSimpleTwoHundredMillion ============= minimalExpectedSpeedup: " + minimalExpectedSpeedup + "; speedup: " + speedup);
+        assertTrue(errMsg, speedup >= minimalExpectedSpeedup);
+    }
 
     /**
      * Test that the many-task parallel implementation properly computes the results for a million-element array.
      */
-//    @Ignore
-//    public void testParManyTaskTwoMillion() {
-//        final int ncores = getNCores();
-//        final double minimalExpectedSpeedup = (double) ncores * 0.6;
-//        final double speedup = parTestHelper(2_000_000, true, ncores);
-//        final String errMsg = String.format("It was expected that the many-task parallel implementation would run at " +
-//                "least %fx faster, but it only achieved %fx speedup", minimalExpectedSpeedup, speedup);
-//        assertTrue(errMsg, speedup >= minimalExpectedSpeedup);
-//    }
+    public void testParManyTaskTwoMillion() {
+        final int ncores = getNCores();
+        final double minimalExpectedSpeedup = (double) ncores * 0.6;
+        final double speedup = parTestHelper(2_000_000, true, ncores);
+        final String errMsg = String.format("It was expected that the many-task parallel implementation would run at " +
+                "least %fx faster, but it only achieved %fx speedup", minimalExpectedSpeedup, speedup);
+        System.out.println("testParManyTaskTwoMillion ============= minimalExpectedSpeedup: " + minimalExpectedSpeedup + "; speedup: " + speedup);
+        assertTrue(errMsg, speedup >= minimalExpectedSpeedup);
+    }
 
     /**
      * Test that the many-task parallel implementation properly computes the results for a hundred million-element array.
      */
-//    @Ignore
-//    public void testParManyTaskTwoHundredMillion() {
-//        final int ncores = getNCores();
-//        final double speedup = parTestHelper(200_000_000, true, ncores);
-//        final double minimalExpectedSpeedup = (double) ncores * 0.8;
-//        final String errMsg = String.format("It was expected that the many-task parallel implementation would run at " +
-//                "least %fx faster, but it only achieved %fx speedup", minimalExpectedSpeedup, speedup);
-//        assertTrue(errMsg, speedup >= minimalExpectedSpeedup);
-//    }
+    public void testParManyTaskTwoHundredMillion() {
+        final int ncores = getNCores();
+        System.out.println("@@@@@@@@ ncores: " + ncores);
+        final double speedup = parTestHelper(200_000_000, true, ncores);
+        final double minimalExpectedSpeedup = (double) ncores * 0.8;
+        final String errMsg = String.format("It was expected that the many-task parallel implementation would run at " +
+                "least %fx faster, but it only achieved %fx speedup", minimalExpectedSpeedup, speedup);
+        assertTrue(errMsg, speedup >= minimalExpectedSpeedup);
+    }
 }
