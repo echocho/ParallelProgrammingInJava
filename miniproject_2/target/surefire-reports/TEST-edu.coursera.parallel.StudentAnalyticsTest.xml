@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="edu.coursera.parallel.StudentAnalyticsTest" time="2.138" tests="2" errors="0" skipped="0" failures="0">
+<testsuite name="edu.coursera.parallel.StudentAnalyticsTest" time="5.326" tests="6" errors="0" skipped="0" failures="2">
   <properties>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="java.vm.version" value="11.0.7+10"/>
@@ -14,6 +14,7 @@
     <property name="sun.os.patch.level" value="unknown"/>
     <property name="user.country" value="US"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="test" value="StudentAnalyticsTest#testCountNumberOfFailedStudentsOlderThan20Perf"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
     <property name="user.dir" value="/Users/echochocheng/Documents/ParallelProgrammingInJava/miniproject_2"/>
     <property name="java.vm.compressedOopsMode" value="Zero based"/>
@@ -24,35 +25,34 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="os.name" value="Mac OS X"/>
-    <property name="maven.ext.class.path" value="/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven-event-listener.jar"/>
-    <property name="classworlds.conf" value="/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven3/bin/m2.conf"/>
+    <property name="classworlds.conf" value="/opt/apache-maven/bin/m2.conf"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
     <property name="java.library.path" value="/Users/echochocheng/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
-    <property name="maven.conf" value="/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven3/conf"/>
+    <property name="maven.conf" value="/opt/apache-maven/conf"/>
     <property name="jdk.debug" value="release"/>
     <property name="java.class.version" value="55.0"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="os.version" value="10.16"/>
+    <property name="library.jansi.path" value="/opt/apache-maven/lib/jansi-native"/>
     <property name="user.home" value="/Users/echochocheng"/>
     <property name="user.timezone" value="Asia/Shanghai"/>
     <property name="java.awt.printerjob" value="sun.lwawt.macosx.CPrinterJob"/>
     <property name="file.encoding" value="UTF-8"/>
     <property name="java.specification.version" value="11"/>
     <property name="user.name" value="echochocheng"/>
-    <property name="java.class.path" value="/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven3/boot/plexus-classworlds.license:/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven3/boot/plexus-classworlds-2.6.0.jar"/>
+    <property name="java.class.path" value="/opt/apache-maven/boot/plexus-classworlds-2.6.0.jar"/>
     <property name="java.vm.specification.version" value="11"/>
     <property name="sun.arch.data.model" value="64"/>
-    <property name="sun.java.command" value="org.codehaus.classworlds.Launcher -Didea.version2020.1.1 test"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher test -Dtest=StudentAnalyticsTest#testCountNumberOfFailedStudentsOlderThan20Perf"/>
     <property name="java.home" value="/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home"/>
     <property name="user.language" value="en"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
-    <property name="idea.version2020.1.1" value="true"/>
     <property name="awt.toolkit" value="sun.lwawt.macosx.LWCToolkit"/>
     <property name="java.vm.info" value="mixed mode"/>
     <property name="java.version" value="11.0.7"/>
     <property name="java.vendor" value="AdoptOpenJDK"/>
-    <property name="maven.home" value="/Applications/IntelliJ IDEA CE.app/Contents/plugins/maven/lib/maven3"/>
+    <property name="maven.home" value="/opt/apache-maven"/>
     <property name="file.separator" value="/"/>
     <property name="java.version.date" value="2020-04-14"/>
     <property name="java.vendor.url.bug" value="https://github.com/AdoptOpenJDK/openjdk-support/issues"/>
@@ -61,6 +61,26 @@
     <property name="java.vendor.version" value="AdoptOpenJDK"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase name="testAverageAgeOfEnrolledStudents" classname="edu.coursera.parallel.StudentAnalyticsTest" time="0.91"/>
-  <testcase name="testAverageAgeOfEnrolledStudentsPerf" classname="edu.coursera.parallel.StudentAnalyticsTest" time="1.228"/>
+  <testcase name="testAverageAgeOfEnrolledStudents" classname="edu.coursera.parallel.StudentAnalyticsTest" time="0.475"/>
+  <testcase name="testAverageAgeOfEnrolledStudentsPerf" classname="edu.coursera.parallel.StudentAnalyticsTest" time="0.649"/>
+  <testcase name="testMostCommonFirstNameOfInactiveStudents" classname="edu.coursera.parallel.StudentAnalyticsTest" time="1.106"/>
+  <testcase name="testMostCommonFirstNameOfInactiveStudentsPerf" classname="edu.coursera.parallel.StudentAnalyticsTest" time="2.027">
+    <failure message="Expected speedup to be at least 2.0 but was 1.4487369985141159" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: Expected speedup to be at least 2.0 but was 1.4487369985141159
+	at junit.framework.Assert.fail(Assert.java:47)
+	at junit.framework.Assert.assertTrue(Assert.java:20)
+	at edu.coursera.parallel.StudentAnalyticsTest.testMostCommonFirstNameOfInactiveStudentsPerf(StudentAnalyticsTest.java:125)
+</failure>
+    <system-out><![CDATA[testMostCommonFirstNameOfInactiveStudentsPerf ================= minimalExpectedSpeedup: 2.0, actualSpeedUp: 1.4487369985141159
+]]></system-out>
+  </testcase>
+  <testcase name="testCountNumberOfFailedStudentsOlderThan20" classname="edu.coursera.parallel.StudentAnalyticsTest" time="0.308"/>
+  <testcase name="testCountNumberOfFailedStudentsOlderThan20Perf" classname="edu.coursera.parallel.StudentAnalyticsTest" time="0.761">
+    <failure message="Expected parallel version to run at least 1.2x faster but speedup was 0.46557377049180326" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: Expected parallel version to run at least 1.2x faster but speedup was 0.46557377049180326
+	at junit.framework.Assert.fail(Assert.java:47)
+	at junit.framework.Assert.assertTrue(Assert.java:20)
+	at edu.coursera.parallel.StudentAnalyticsTest.testCountNumberOfFailedStudentsOlderThan20Perf(StudentAnalyticsTest.java:168)
+</failure>
+    <system-out><![CDATA[testCountNumberOfFailedStudentsOlderThan20Perf ================= minimalExpectedSpeedup: 1.2, actualSpeedUp: 0.46557377049180326
+]]></system-out>
+  </testcase>
 </testsuite>
